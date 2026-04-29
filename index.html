@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Temporal Badge docs, apps, hardware notes, and community hacks for temporal.io."
+    />
+    <title>Temporal Badge</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Temporal Badge home">
+        <img
+          class="brand-mark"
+          src="https://images.ctfassets.net/0uuz8ydxyd9p/5kHQtcFCSqkLDH4I6HFmyG/8e75bd66b57696eb0a7866b3cbf8ea30/Temporal_Symbol_light_1_2x.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <span>Temporal Badge</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Hacks</a>
+        <a href="contribute.html">Contribute</a>
+      </nav>
+      <a class="header-link" href="https://temporal.io/">Temporal</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">// TEMPORAL DEVREL</p>
+          <h1>Hack. Retry. Execute.</h1>
+          <p class="lede">
+            A field guide for the electronic badge built around temporal.io:
+            setup notes, hardware references, demo apps, and experiments for
+            builders.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="get-started.html"
+              >Start the badge</a
+            >
+            <a class="button" href="apps.html">Browse apps</a>
+          </div>
+        </div>
+
+        <div
+          class="badge-visual"
+          aria-label="Stylized Temporal Badge hardware preview"
+        >
+          <div class="badge-body">
+            <div class="screen">
+              <div class="badge-menu-top">
+                <span>HOME</span>
+                <span class="status-icons" aria-hidden="true"
+                  ><span class="status-dot"></span><span class="battery"></span
+                ></span>
+              </div>
+              <div class="badge-menu-grid">
+                <div class="menu-tile active">
+                  <span class="tile-icon grid-icon" aria-hidden="true"></span>
+                  <strong>BOOPER</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon calendar-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>SCHEDULE</strong>
+                </div>
+                <div class="menu-tile">
+                  <span class="tile-icon map-icon" aria-hidden="true"></span>
+                  <strong>MAP</strong>
+                </div>
+                <div class="menu-tile">
+                  <span
+                    class="tile-icon workflow-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <strong>WORKFLOW</strong>
+                </div>
+              </div>
+              <div class="badge-menu-pager" aria-hidden="true">+++</div>
+              <div class="badge-menu-footer">
+                <strong>boop to nearby badge holders</strong>
+              </div>
+            </div>
+            <div class="controls">
+              <span></span>
+              <span class="dpad" aria-label="Directional controls">
+                <i class="dpad-up"></i>
+                <i class="dpad-left"></i>
+                <i class="dpad-right"></i>
+                <i class="dpad-down"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-strip" aria-label="Site summary">
+          <div><strong>6</strong><span>core flows</span></div>
+          <div><strong>8</strong><span>app ideas</span></div>
+          <div><strong>12</strong><span>hack seeds</span></div>
+          <div><strong>0</strong><span>build tools</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">// READY TO BOOT</p>
+          <h2>Preloaded Experiences</h2>
+          <p>
+            Use these as placeholders for the first badge firmware build and
+            update each card as the apps settle.
+          </p>
+        </div>
+        <div class="card-grid three">
+          <article class="app-card">
+            <div class="app-icon trace"></div>
+            <h3>Workflow Trace</h3>
+            <p>
+              Step through a captured execution and watch events move across the
+              badge display.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon temporal"></div>
+            <h3>Workflow Runner</h3>
+            <p>
+              Trigger a local demo workflow and compare expected state with the
+              current run.
+            </p>
+          </article>
+          <article class="app-card">
+            <div class="app-icon signal"></div>
+            <h3>Signal Quest</h3>
+            <p>
+              Collect booth signals, session codes, or challenge beacons during
+              the event.
+            </p>
+          </article>
+        </div>
+        <div class="section-link">
+          <a href="apps.html">View all app cards</a>
+        </div>
+      </section>
+
+      <section class="section split-band">
+        <div>
+          <p class="eyebrow">// BENCH NOTES</p>
+          <h2>Customize Your Badge</h2>
+          <p>
+            Short tutorials should be practical enough to run from a laptop at a
+            table: copy files, change config, flash firmware, add assets, or
+            wire a sensor.
+          </p>
+        </div>
+        <div class="hack-list">
+          <a href="hacks.html#identity">
+            <span>beginner</span>
+            <strong>Set Your Temporal Handle</strong>
+            <em>5 mins</em>
+          </a>
+          <a href="hacks.html#timeline">
+            <span>beginner</span>
+            <strong>Load a Demo Timeline</strong>
+            <em>8 mins</em>
+          </a>
+          <a href="hacks.html#sensor">
+            <span>intermediate</span>
+            <strong>Add a Sensor Activity</strong>
+            <em>20 mins</em>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <h2>Temporal Badge</h2>
+        <p>
+          A static documentation scaffold for the electronic badge used with
+          temporal.io.
+        </p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="get-started.html">Get Started</a>
+        <a href="hardware.html">Hardware</a>
+        <a href="apps.html">Apps</a>
+        <a href="hacks.html">Hacks</a>
+        <a href="contribute.html">Contribute</a>
+      </nav>
+    </footer>
+  </body>
+</html>
