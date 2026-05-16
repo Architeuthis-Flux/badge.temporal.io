@@ -1,0 +1,84 @@
+name: docs-site-check
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "vercel.json"
+      - ".github/workflows/docs-build.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "vercel.json"
+      - ".github/workflows/docs-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check docs site
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify docs files
+        run: |
+          test -f docs/index.html
+          test -f docs/css/base.css
+          test -f docs/css/components.css
+          python3 - <<'PY'
+          from pathlib import Path
+          missing = [
+              str(path)
+              for path in Path("docs").glob("*.html")
+              if '<link rel="stylesheet"' not in path.read_text()
+          ]
+          if missing:
+              raise SystemExit("HTML files missing stylesheet links: " + ", ".join(missing))
+          PY
+
+      - name: Serve docs
+        run: |
+          python3 -m http.server 4173 --directory docs &
+          echo $! > /tmp/replay-docs-http.pid
+          sleep 2
+          curl --fail --silent --show-error http://127.0.0.1:4173/index.html > /dev/null
+
+      - name: Run Lighthouse
+        run: |
+          npx --yes lighthouse http://127.0.0.1:4173/index.html \
+            --chrome-flags="--headless --no-sandbox" \
+            --output=json \
+            --output-path=/tmp/replay-docs-lighthouse.json
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const report = JSON.parse(fs.readFileSync("/tmp/replay-docs-lighthouse.json", "utf8"));
+          const required = {
+            performance: 0.90,
+            accessibility: 1.00,
+            "best-practices": 1.00,
+            seo: 1.00,
+          };
+          for (const [category, minimum] of Object.entries(required)) {
+            const score = report.categories[category].score;
+            console.log(`${category}: ${Math.round(score * 100)}`);
+            if (score < minimum) {
+              throw new Error(`${category} score ${score} is below ${minimum}`);
+            }
+          }
+          NODE
+
+      - name: Stop docs server
+        if: always()
+        run: |
+          if [ -f /tmp/replay-docs-http.pid ]; then
+            kill "$(cat /tmp/replay-docs-http.pid)" || true
+          fi

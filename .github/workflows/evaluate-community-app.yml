@@ -1,0 +1,52 @@
+name: Evaluate Community App Submission
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - ".github/scripts/evaluate-community-app-pr.mjs"
+      - ".github/workflows/evaluate-community-app.yml"
+      - "docs/**"
+      - "firmware/**"
+      - "ignition/**"
+      - "community_apps/**"
+      - "THIRD_PARTY_NOTICES.md"
+      - "licenses/**"
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Pull request number to evaluate
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  evaluate:
+    if: |
+      github.event_name == 'pull_request_target' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        contains(github.event.comment.body, '@evaluate-community-app'))
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Evaluate Community App PR
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PULL_REQUEST_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pull_request || github.event.pull_request.number || github.event.issue.number }}
+        run: node .github/scripts/evaluate-community-app-pr.mjs
