@@ -69,3 +69,4 @@ data/**/*.pyc
 !/firmware/lib/**
 !/firmware/initial_filesystem/lib/
 !/firmware/initial_filesystem/lib/**
+*code-workspace
