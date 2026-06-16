@@ -665,6 +665,12 @@ int8_t fontFamilyFromName(const char* name) {
         strstr(communityAppsUrl_, "/registry/registry.json")) {
       return kV2Url;
     }
+    // Raw registry 404s until registry/community_apps.json lands on main;
+    // fall back to the published release asset.
+    if (strstr(communityAppsUrl_, "raw.githubusercontent.com") &&
+        strstr(communityAppsUrl_, "/registry/community_apps.json")) {
+      return REPO_COMMUNITY_APPS_RELEASE_URL;
+    }
     return communityAppsUrl_;
   }
 

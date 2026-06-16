@@ -305,17 +305,10 @@ class Config {
      char timezone_[64] = "PST8PDT,M3.2.0,M11.1.0";
      char nametagSetting_[64] = "default";
      char otaManifestUrl_[160] = "";
-     // The repo-root /registry/community_apps.json file is the v2
-     // Community Apps registry. The previous /registry/registry.json
-     // (v1) is kept in-tree for backwards compatibility; older firmware
-     // out in the field still hits it via its own baked default URL.
-     //
-     // Why raw.githubusercontent.com and not jsDelivr? The repo (with
-     // its MicroPython submodule + DOOM WAD + zigmoji frames) is over
-     // jsDelivr's free 50 MB per-package limit, so jsdelivr replies
-     // with a 403 "Package size exceeded" page. GitHub raw has a
-     // 60 req/hr unauthenticated rate limit but the badge only fetches
-     // once a day so this is fine.
+     // The v2 Community Apps registry is published as a GitHub Release asset.
+     // generate_startup_files.py also writes registry/community_apps.json on
+     // main; AssetRegistry tries that raw URL as a fallback and merges
+     // firmware-baked downloadable entries (doom1.wad) after every fetch.
      char communityAppsUrl_[160] = REPO_COMMUNITY_APPS_URL;
 
      uint32_t lastFileSize_ = 0;

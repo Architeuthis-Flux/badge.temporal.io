@@ -110,6 +110,25 @@ micropython-embed-package-replay: micropython-embed-package
 	    $(TOP)/extmod/machine_wdt.c \
 	    $(TOP)/extmod/machine_pulse.c \
 	    $(PACKAGE_DIR)/extmod/
+	@echo "- extmod (asyncio + bluetooth/nimble + socket/websocket/webrepl: vendored-but-gated)"
+	@# These modules are kept in the package tree so the embed stays a strict
+	@# superset of upstream MicroPython. Compilation is gated by library.json
+	@# srcFilter + mpconfigport.h flags (asyncio/bluetooth default-off, network
+	@# behind REPLAY_ENABLE_FULL_NETWORK), so packaging them is purely additive:
+	@# users can flip a flag and rebuild without re-vendoring sources. Without
+	@# this step a regen silently drops them and breaks `import asyncio` etc.
+	$(Q)$(MKDIR) -p $(PACKAGE_DIR)/extmod/asyncio
+	$(Q)for f in $(TOP)/extmod/asyncio/*.py; do \
+	    test -f "$$f" && $(CP) "$$f" $(PACKAGE_DIR)/extmod/asyncio/ || true; \
+	done
+	$(Q)for f in modasyncio.c modbluetooth.c modbluetooth.h modsocket.c \
+	             modwebsocket.c modwebsocket.h modwebrepl.c; do \
+	    test -f $(TOP)/extmod/$$f && $(CP) $(TOP)/extmod/$$f $(PACKAGE_DIR)/extmod/ || true; \
+	done
+	$(Q)if [ -d $(TOP)/extmod/nimble ]; then \
+	    $(MKDIR) -p $(PACKAGE_DIR)/extmod/nimble; \
+	    $(CP) -R $(TOP)/extmod/nimble/. $(PACKAGE_DIR)/extmod/nimble/; \
+	fi
 	@echo "- lib/oofatfs"
 	$(Q)$(MKDIR) -p $(PACKAGE_DIR)/lib/oofatfs
 	$(Q)$(CP) $(TOP)/lib/oofatfs/* $(PACKAGE_DIR)/lib/oofatfs/

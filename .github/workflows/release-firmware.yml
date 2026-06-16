@@ -119,6 +119,7 @@ jobs:
             firmware \
             data \
             community_apps \
+            registry \
             .github/workflows/release-firmware.yml \
             release-assets || true)"
 

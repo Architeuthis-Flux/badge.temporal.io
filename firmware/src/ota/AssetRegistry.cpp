@@ -22,6 +22,8 @@ FATFS* replay_get_fatfs(void);
 #include "../infra/DebugLog.h"
 #include "../infra/Filesystem.h"
 #include "../infra/PsramAllocator.h"
+#include "../infra/RepoUrls.h"
+#include "RegistryDownloadables.h"
 
 namespace ota::registry {
 
@@ -97,6 +99,44 @@ bool isPlausibleUrl(const char* url) {
     if (c < 0x20 || c > 0x7e) return false;
   }
   return true;
+}
+
+// Merge firmware-baked downloadable entries (doom1.wad) that may be
+// absent from the published release registry until the next cut.
+void mergeBuiltinDownloadables() {
+  for (size_t i = 0; i < kBuiltinDownloadableCount; ++i) {
+    const BuiltinDownloadable& b = kBuiltinDownloadables[i];
+    if (!b.id || b.id[0] == '\0' || !b.dest_path || b.dest_path[0] == '\0') {
+      continue;
+    }
+    if (!isPlausibleUrl(b.url)) continue;
+
+    bool exists = false;
+    for (uint8_t j = 0; j < sAssetCount; ++j) {
+      if (std::strcmp(sAssets[j].id, b.id) == 0 ||
+          std::strcmp(sAssets[j].dest_path, b.dest_path) == 0) {
+        exists = true;
+        break;
+      }
+    }
+    if (exists) continue;
+    if (sAssetCount >= kMaxRegistryAssets) break;
+
+    AssetEntry& e = sAssets[sAssetCount];
+    std::memset(&e, 0, sizeof(e));
+    e.kind = AssetKind::kFile;
+    copyField(e.id, sizeof(e.id), b.id);
+    copyField(e.name, sizeof(e.name), b.name ? b.name : b.id);
+    copyField(e.version, sizeof(e.version), b.version ? b.version : "0");
+    copyField(e.url, sizeof(e.url), b.url);
+    copyField(e.sha256, sizeof(e.sha256), b.sha256 ? b.sha256 : "");
+    copyField(e.dest_path, sizeof(e.dest_path), b.dest_path);
+    copyField(e.description, sizeof(e.description),
+              b.description ? b.description : "");
+    e.size = b.size;
+    e.min_free_bytes = b.min_free_bytes;
+    sAssetCount++;
+  }
 }
 
 bool nvsKey(char* out, size_t cap, const char* prefix, const char* id) {
@@ -425,11 +465,37 @@ RegistryRefresh refresh(bool ignoreCooldown) {
   DBG("[registry] GET %s\n", url);
   char* body = nullptr;
   size_t bodyLen = 0;
-  HttpResult httpRes =
-      getJson(url, &body, &bodyLen, kRegistryJsonMax, 20000);
+  HttpResult httpRes{};
+  const char* candidates[3] = {url, nullptr, nullptr};
+  size_t candidateCount = 1;
+  auto pushUnique = [&](const char* u) {
+    if (!u || !u[0]) return;
+    for (size_t i = 0; i < candidateCount; ++i) {
+      if (candidates[i] && std::strcmp(candidates[i], u) == 0) return;
+    }
+    if (candidateCount < 3) candidates[candidateCount++] = u;
+  };
+  pushUnique(REPO_COMMUNITY_APPS_RELEASE_URL);
+  pushUnique(REPO_COMMUNITY_APPS_RAW_URL);
+
+  for (size_t i = 0; i < candidateCount; ++i) {
+    const char* tryUrl = candidates[i];
+    if (i > 0) {
+      DBG("[registry] retry GET %s\n", tryUrl);
+      if (body) {
+        std::free(body);
+        body = nullptr;
+        bodyLen = 0;
+      }
+    }
+    httpRes = getJson(tryUrl, &body, &bodyLen, kRegistryJsonMax, 20000);
+    if (httpRes.ok) break;
+    DBG("[registry] fetch failed: code=%d %s\n",
+        httpRes.httpCode, httpRes.error);
+    if (httpRes.httpCode != 404) break;
+  }
+
   if (!httpRes.ok) {
-    DBG("[registry] refresh failed: code=%d %s\n",
-                  httpRes.httpCode, httpRes.error);
     setError(httpRes.error);
     if (body) std::free(body);
     sLastRefreshResult = RegistryRefresh::kNetworkError;
@@ -543,6 +609,8 @@ RegistryRefresh refresh(bool ignoreCooldown) {
   // so the adopted set is internally consistent — just potentially
   // shorter than the source JSON.
   (void)parsedAssetsFromJson;
+
+  mergeBuiltinDownloadables();
 
   sLastRefreshEpoch = wifiService.clockReady() ? time(nullptr) : 1;
   persistRefreshEpoch(sLastRefreshEpoch);
