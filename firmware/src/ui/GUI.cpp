@@ -256,11 +256,11 @@ static const char* const kCuratedPythonDuplicateEntryPaths[] = {
 // latency (Python warm-up) and per-frame cost. The kCreditsUsePython
 // setting picks at click time so flipping it in settings.txt swaps the
 // renderer immediately, no reboot required.
-static void launchCredits(GUIManager& gui) {
+void GUIManager::launchCredits() {
   if (badgeConfig.get(kCreditsUsePython)) {
-    launchPythonApp(gui, "/apps/credits.py", "Credits");
+    launchPythonApp(*this, "/apps/credits.py", "Credits");
   } else {
-    gui.pushScreen(kScreenAboutCredits);
+    pushScreen(kScreenAboutCredits);
   }
 }
 
@@ -401,8 +401,6 @@ static const GridMenuItem kCuratedMenuItems[] = {
       AppIcons::docs,      kScreenHelp,         nullptr, nullptr, nullptr},
      {"SPONSORS", "Thank you to our sponsors!",
       AppIcons::about,     kScreenAboutSponsors, nullptr, nullptr, nullptr},
-     {"CREDITS", "Meet the crew that built this badge",
-      AppIcons::profile,   kScreenNone,          launchCredits, nullptr, nullptr},
       {"DIAGNOSTICS", "Inspect runtime state, tasks, battery, and memory",
         AppIcons::about,     kScreenDiagnostics, nullptr, nullptr, nullptr},
 };
@@ -604,7 +602,6 @@ static constexpr int16_t kFwUpdateAlwaysLastOrder       = 30200;
 static constexpr int16_t kHelpAlwaysLastOrder           = 30300;
 static constexpr int16_t kCommunityAppsAlwaysLastOrder  = 30400;
 static constexpr int16_t kSponsorsAlwaysLastOrder       = 30500;
-static constexpr int16_t kCreditsAlwaysLastOrder        = 30600;
 
 // Effective order = NVS override → manifest hint → fallback.
 static int16_t resolveItemOrder(const char* label, int16_t fallback) {
@@ -632,14 +629,11 @@ extern "C" void rebuildMainMenuFromRegistry(void) {
     slot = kCuratedMenuItems[i];
     // System tiles all pin to the tail in a fixed order
     // (SETTINGS → WIFI → FW UPDATE → HELP → COMMUNITY APPS →
-    // SPONSORS → CREDITS), unless the user has explicitly reordered
-    // any of them via MenuOrderScreen. Sponsors + Credits land at the
-    // very end so the "thank-you" tail of the menu reads as a credit
-    // roll rather than getting buried mid-grid.
+    // SPONSORS), unless the user has explicitly reordered any of them
+    // via MenuOrderScreen. Sponsors lands at the very end so the
+    // thank-you tail doesn't get buried mid-grid.
     int16_t fallback;
-    if (slot.label && strcmp(slot.label, "CREDITS") == 0) {
-      fallback = kCreditsAlwaysLastOrder;
-    } else if (slot.label && strcmp(slot.label, "SPONSORS") == 0) {
+    if (slot.label && strcmp(slot.label, "SPONSORS") == 0) {
       fallback = kSponsorsAlwaysLastOrder;
     } else if (slot.label && strcmp(slot.label, "COMMUNITY APPS") == 0) {
       fallback = kCommunityAppsAlwaysLastOrder;

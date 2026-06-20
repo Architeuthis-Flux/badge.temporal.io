@@ -13,6 +13,8 @@
 //   badge.temporal.io                           (mirror, may lag)
 //
 // Joystick up/down scrolls the page; cancel pops back to the menu.
+// Scroll to the bottom for a "Meet the crew" action (confirm opens
+// credits — native or Python per kCreditsUsePython).
 
 class HelpScreen : public Screen {
  public:

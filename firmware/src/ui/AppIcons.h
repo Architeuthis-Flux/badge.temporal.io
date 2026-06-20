@@ -50,23 +50,55 @@ static const uint8_t apps[] PROGMEM = {
     0x92, 0x04, 0x92, 0x04, 0xfe, 0x07, 0x00, 0x00
 };
 
-// "Unknown app" placeholder — square frame with a centered '?'. Shown
-// when AppRegistry can't parse a dynamic app's icon.py (missing file,
-// 0 bytes, malformed DATA tuple, etc.). Distinct from AppIcons::apps
-// so the user can tell at a glance which tiles are misconfigured.
+// "Unknown app" placeholder — centered Temporal star (StarIcon, 7×7
+// in a 12×12 tile). Shown when AppRegistry can't parse a dynamic app's
+// icon.py (missing file, 0 bytes, malformed DATA tuple, etc.).
+// Distinct from AppIcons::apps so misconfigured tiles don't look like
+// the generic 3×3 grid.
+static const uint8_t unknown2[] PROGMEM = {
+    0xfc, 0x03,   // ..XXXXXXXX..
+    0x02, 0x04,   // .X........X.
+    0xf1, 0x08,   // X...XXXX...X
+    0xf9, 0x09,   // X..XXXXXX..X
+    0x99, 0x09,   // X..XX..XX..X
+    0x99, 0x09,   // X..XX..XX..X
+    0xf9, 0x09,   // X..XXXXXX..X
+    0xf9, 0x09,   // X..XXXXXX..X
+    0x99, 0x09,   // X..XX..XX..X
+    0x99, 0x09,   // X..XX..XX..X
+    0x02, 0x04,   // .X........X.
+    0xfc, 0x03,   // ..XXXXXXXX..
+};
+
+static const uint8_t docs[] PROGMEM = {
+    0xfc, 0x03,   // ..XXXXXXXX..
+    0x02, 0x04,   // .X........X.
+    0xf1, 0x08,   // X...XXXX...X
+    0xf9, 0x09,   // X..XXXXXX..X
+    0x99, 0x09,   // X..XX..XX..X
+    0x81, 0x09,   // X......XX..X
+    0xe1, 0x08,   // X....XXX...X
+    0x61, 0x08,   // X....XX....X
+    0x01, 0x08,   // X..........X
+    0x61, 0x08,   // X....XX....X
+    0x02, 0x04,   // .X........X.
+    0xfc, 0x03,   // ..XXXXXXXX..
+};
+
+
 static const uint8_t unknown[] PROGMEM = {
-    0x00, 0x00,   // ............
-    0xfe, 0x07,   // .XXXXXXXXXX.
-    0x02, 0x04,   // .X........X.
-    0x72, 0x04,   // .X.XXXX...X.
-    0x42, 0x04,   // .X.X..X...X.
-    0x02, 0x04,   // .X..X.....X.   (shaft of '?')
-    0x12, 0x04,   // .X..X.....X.
-    0x02, 0x04,   // .X........X.
-    0x12, 0x04,   // .X..X.....X.   (dot of '?')
-    0x02, 0x04,   // .X........X.
-    0xfe, 0x07,   // .XXXXXXXXXX.
-    0x00, 0x00,   // ............
+    0xe0, 0x03,   // .....XXXXX..
+    0x06, 0x04,   // .XX.......X.
+    0x09, 0x08,   // X..X.......X
+    0x09, 0x08,   // X..X.......X
+    0xef, 0x00,   // XXXX.XXX....
+    0xa9, 0x00,   // X..X.X.X....
+    0xe9, 0x0e,   // X..X.XXX.XXX
+    0x20, 0x0a,   // .....X...X.X
+    0x21, 0x0e,   // X....X...XXX
+    0x01, 0x02,   // X........X..
+    0x02, 0x02,   // .X.......X..
+    0xfc, 0x00,   // ..XXXXXX....
 };
 
 // Persistent LED-matrix-app picker (MATRIX APPS tile). 4×4 grid of
@@ -197,7 +229,7 @@ static const uint8_t map[] PROGMEM = {
 // 12×12, two bytes per row (LSB = leftmost column) — same convention
 // as every other AppIcons glyph. The strokes are 2 px wide so the
 // glyph reads cleanly against the inverted-selection background.
-static const uint8_t docs[] PROGMEM = {
+static const uint8_t docs2[] PROGMEM = {
     0x00, 0x00,   // ............
     0xf8, 0x01,     // ...XXXXXX...
     0x0c, 0x03,     // ..XX....XX..
